@@ -34,6 +34,8 @@ fi
 case $XBPS_TARGET_MACHINE in
 	x86_64*) configure_args+=" enable-ec_nistp_64_gcc_128 linux-x86_64";;
 	i686*) configure_args+=" linux-elf";;
+	arc*) configure_args+=" linux-arc";;
+	arc64*) configure_args+=" linux-arc64";;
 	aarch64*) configure_args+=" linux-aarch64";;
 	ppc64le*) configure_args+=" linux-ppc64le";;
 	ppc64*) configure_args+=" linux-ppc64";;

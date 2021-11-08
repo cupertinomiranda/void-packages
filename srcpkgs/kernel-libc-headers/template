@@ -17,6 +17,7 @@ fi
 
 case "$XBPS_TARGET_MACHINE" in
 	i686*|x86_64*) _arch="x86";;
+	arc*) _arch="arc";;
 	arm*) _arch="arm";;
 	aarch64*) _arch="arm64";;
 	mips*) _arch="mips";;

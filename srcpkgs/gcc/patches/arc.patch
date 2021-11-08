@@ -1,0 +1,93 @@
+diff --git a/gcc/config/arc/arc-arch.h b/gcc/config/arc/arc-arch.h
+index a1bc67d971e..7491a52f007 100644
+--- a/gcc/config/arc/arc-arch.h
++++ b/gcc/config/arc/arc-arch.h
+@@ -22,6 +22,8 @@ along with GCC; see the file COPYING3.  If not see
+ #ifndef GCC_ARC_ARCH_H
+ #define GCC_ARC_ARCH_H
+ 
++#include <stddef.h>
++
+ #ifndef IN_LIBGCC2
+ /* Architecture selection types.  */
+ 
+@@ -116,25 +118,8 @@ typedef struct
+ 
+ } arc_cpu_t;
+ 
+-const arc_arch_t arc_arch_types[] =
+-  {
+-    {"none", BASE_ARCH_NONE, 0, 0},
+-#define ARC_ARCH(NAME, ARCH, FLAGS, DFLAGS)	\
+-    {NAME, BASE_ARCH_##ARCH, FLAGS, DFLAGS},
+-#include "arc-arches.def"
+-#undef ARC_ARCH
+-    {NULL, BASE_ARCH_END, 0, 0}
+-  };
+-
+-const arc_cpu_t arc_cpu_types[] =
+-  {
+-    {"none", NULL, PROCESSOR_NONE, 0, HAS_NONE, ARC_TUNE_NONE},
+-#define ARC_CPU(NAME, ARCH, FLAGS, EXTRA, TUNE)				\
+-    {#NAME, &arc_arch_types [BASE_ARCH_##ARCH], PROCESSOR_##NAME, FLAGS, HAS_##EXTRA, ARC_TUNE_##TUNE },
+-#include "arc-cpus.def"
+-#undef ARC_CPU
+-    {NULL, NULL, PROCESSOR_NONE, 0, HAS_NONE, ARC_TUNE_NONE}
+-  };
++extern const arc_arch_t arc_arch_types[];
++extern const arc_cpu_t arc_cpu_types[];
+ 
+ /* Currently selected cpu type.  */
+ extern const arc_cpu_t *arc_selected_cpu;
+diff --git a/gcc/config/arc/arc.c b/gcc/config/arc/arc.c
+index 466a5b12a05..b0e9847c95b 100644
+--- a/gcc/config/arc/arc.c
++++ b/gcc/config/arc/arc.c
+@@ -69,6 +69,8 @@ along with GCC; see the file COPYING3.  If not see
+ #include "opts.h"
+ #include "hw-doloop.h"
+ 
++#include "common-defs.h"
++
+ /* Which cpu we're compiling for (ARC600, ARC601, ARC700).  */
+ static char arc_cpu_name[10] = "";
+ static const char *arc_cpu_string = arc_cpu_name;
+diff --git a/gcc/config/arc/common-defs.h b/gcc/config/arc/common-defs.h
+new file mode 100644
+index 00000000000..1cf066de18f
+--- /dev/null
++++ b/gcc/config/arc/common-defs.h
+@@ -0,0 +1,20 @@
++const arc_arch_t arc_arch_types[] =
++  {
++    {"none", BASE_ARCH_NONE, 0, 0},
++#define ARC_ARCH(NAME, ARCH, FLAGS, DFLAGS)	\
++    {NAME, BASE_ARCH_##ARCH, FLAGS, DFLAGS},
++#include "arc-arches.def"
++#undef ARC_ARCH
++    {NULL, BASE_ARCH_END, 0, 0}
++  };
++
++const arc_cpu_t arc_cpu_types[] =
++  {
++    {"none", NULL, PROCESSOR_NONE, 0, HAS_NONE, ARC_TUNE_NONE},
++#define ARC_CPU(NAME, ARCH, FLAGS, EXTRA, TUNE)				\
++    {#NAME, &arc_arch_types [BASE_ARCH_##ARCH], PROCESSOR_##NAME, FLAGS, HAS_##EXTRA, ARC_TUNE_##TUNE },
++#include "arc-cpus.def"
++#undef ARC_CPU
++    {NULL, NULL, PROCESSOR_NONE, 0, HAS_NONE, ARC_TUNE_NONE}
++  };
++
+diff --git a/gcc/config/arc/driver-arc.c b/gcc/config/arc/driver-arc.c
+index dc5fc39cc4d..344d4f69f6a 100644
+--- a/gcc/config/arc/driver-arc.c
++++ b/gcc/config/arc/driver-arc.c
+@@ -25,6 +25,8 @@
+ #include "coretypes.h"
+ #include "tm.h"
+ 
++#include "common-defs.h"
++
+ /* Returns command line parameters to pass to as.  */
+ 
+ const char*

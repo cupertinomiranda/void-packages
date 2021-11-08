@@ -36,11 +36,11 @@ _void_cross_build_binutils() {
 	msg_normal "Patching binutils for ${tgt}\n"
 
 	cd ${wrksrc}/binutils-${ver}
-	if [ -d "${XBPS_SRCPKGDIR}/binutils/patches" ]; then
-		for f in ${XBPS_SRCPKGDIR}/binutils/patches/*.patch; do
-			_void_cross_apply_patch "$f"
-		done
-	fi
+	#if [ -d "${XBPS_SRCPKGDIR}/binutils/patches" ]; then
+	#	for f in ${XBPS_SRCPKGDIR}/binutils/patches/*.patch; do
+	#		_void_cross_apply_patch "$f"
+	#	done
+	#fi
 	cd ..
 
 	msg_normal "Building binutils for ${tgt}\n"
@@ -88,10 +88,10 @@ _void_cross_build_bootstrap_gcc() {
 
 	cd ${wrksrc}/gcc-${ver}
 
-	# Do not run fixincludes
-	sed -i 's@./fixinc.sh@-c true@' Makefile.in
+	## Do not run fixincludes
+	##sed -i 's@./fixinc.sh@-c true@' Makefile.in
 
-	for f in ${XBPS_SRCPKGDIR}/gcc/patches/*.patch; do
+	for f in ${XBPS_SRCPKGDIR}/gcc/patches-arc64/*.patch; do
 		_void_cross_apply_patch "$f"
 	done
 	if [ -f ${wrksrc}/.musl_version ]; then
@@ -106,14 +106,14 @@ _void_cross_build_bootstrap_gcc() {
 	mkdir -p gcc_bootstrap
 	cd gcc_bootstrap
 
-	local extra_args
-	if [ -f ${wrksrc}/.musl_version ]; then
-		extra_args+=" --with-newlib"
-		extra_args+=" --disable-symvers"
-		extra_args+=" libat_cv_have_ifunc=no"
-	else
-		extra_args+=" --without-headers"
-	fi
+	#local extra_args
+	#if [ -f ${wrksrc}/.musl_version ]; then
+	#	extra_args+=" --with-newlib"
+	#	extra_args+=" --disable-symvers"
+	#	extra_args+=" libat_cv_have_ifunc=no"
+	#else
+	#	extra_args+=" --without-headers"
+	#fi
 
 	../gcc-${ver}/configure \
 		--prefix=/usr \
@@ -134,6 +134,7 @@ _void_cross_build_bootstrap_gcc() {
 		--disable-libatomic \
 		--disable-threads \
 		--disable-sjlj-exceptions \
+		--disable-bootstrap \
 		--enable-languages=c \
 		--with-gnu-ld \
 		--with-gnu-as \
@@ -182,8 +183,8 @@ _void_cross_build_kernel_headers() {
 		x86_64*|i686*) arch=x86 ;;
 		powerpc*) arch=powerpc ;;
 		mips*) arch=mips ;;
-		arc*) arch=arc ;;
 		aarch64*) arch=arm64 ;;
+		arc64*) arch=arc ;;
 		arm*) arch=arm ;;
 		riscv*) arch=riscv ;;
 		s390*) arch=s390 ;;
@@ -223,6 +224,11 @@ _void_cross_build_glibc_headers() {
 	echo "libc_cv_forced_unwind=yes" > config.cache
 	echo "libc_cv_c_cleanup=yes" >> config.cache
 
+	local ldlpath=$LD_LIBRARY_PATH
+	export -n LD_LIBRARY_PATH
+
+	export > /tmp/export2
+
 	# we don't need any custom args here, it's just headers
 	CC="${tgt}-gcc" CXX="${tgt}-g++" CPP="${tgt}-cpp" LD="${tgt}-ld" \
 	AS="${tgt}-as" NM="${tgt}-nm" CFLAGS="-pipe" CXXFLAGS="" CPPFLAGS="" \
@@ -239,6 +245,8 @@ _void_cross_build_glibc_headers() {
 		install_root=${wrksrc}/build_root/usr/${tgt}
 
 	touch ${wrksrc}/.glibc_headers_done
+
+	export LD_LIBRARY_PATH=$ldlpath
 }
 
 _void_cross_build_glibc() {
@@ -246,8 +254,6 @@ _void_cross_build_glibc() {
 
 	local tgt=$1
 	local ver=$2
-
-	export > /tmp/export1
 
 	msg_normal "Building glibc for ${tgt}\n"
 
@@ -266,7 +272,7 @@ _void_cross_build_glibc() {
 	CFLAGS="-pipe ${cross_glibc_cflags}" \
 	CXXFLAGS="-pipe ${cross_glibc_cflags}" \
 	CPPFLAGS="${cross_glibc_cflags}" \
-	LDFLAGS="${cross_glibc_ldflags}" \
+	LDFLAGS="${cross_glibc_ldflags}" LD_LIBRARY_PATH="" \
 	../glibc-${ver}/configure \
 		--prefix=/usr \
 		--libdir=/usr/lib${ws} \
@@ -294,11 +300,11 @@ _void_cross_build_musl() {
 	msg_normal "Patching musl for ${tgt}\n"
 
 	cd ${wrksrc}/musl-${ver}
-	if [ -d "${XBPS_SRCPKGDIR}/musl/patches" ]; then
-		for f in ${XBPS_SRCPKGDIR}/musl/patches/*.patch; do
-			_void_cross_apply_patch "$f"
-		done
-	fi
+	#if [ -d "${XBPS_SRCPKGDIR}/musl/patches" ]; then
+	#	for f in ${XBPS_SRCPKGDIR}/musl/patches/*.patch; do
+	#		_void_cross_apply_patch "$f"
+	#	done
+	#fi
 	cd ..
 
 	msg_normal "Building musl for ${tgt}\n"
@@ -338,8 +344,8 @@ _void_cross_build_libucontext() {
 		powerpc*) arch=ppc ;;
 		mips*64*) arch=mips64 ;;
 		mips*) arch=mips ;;
-		arc*) arch=arc ;;
 		aarch64*) arch=aarch64 ;;
+		arc64*) arch=arc64 ;;
 		arm*) arch=arm ;;
 		riscv64*) arch=riscv64 ;;
 		s390x*) arch=s390x ;;
@@ -387,6 +393,8 @@ _void_cross_build_gcc() {
 	else
 		extra_args+=" --enable-gnu-unique-object"
 	fi
+
+	export > /tmp/export3
 
 	# note on --disable-libquadmath:
 	# on some platforms the library is actually necessary for the
@@ -460,6 +468,7 @@ do_build() {
 	# Verify toolchain versions
 	cd ${wrksrc}
 
+
 	local binutils_ver linux_ver gcc_ver libc_ver libucontext_ver
 	local tgt=${sourcepkg/cross-}
 
@@ -508,7 +517,7 @@ do_build() {
 	local oldldlib="$LD_LIBRARY_PATH"
 
 	export PATH="${wrksrc}/build_root/usr/bin:$PATH"
-	export LD_LIBRARY_PATH="${wrksrc}/build_root/usr/lib:$PATH"
+	export LD_LIBRARY_PATH="${wrksrc}/build_root/usr/lib:$LD_LIBRARY_PATH"
 
 	_void_cross_build_bootstrap_gcc ${tgt} ${gcc_ver}
 	_void_cross_build_kernel_headers ${tgt} ${linux_ver}
@@ -532,6 +541,8 @@ do_build() {
 	# restore this stuff in case later hooks depend on it
 	export PATH="$oldpath"
 	export LD_LIBRARY_PATH="$oldldlib"
+
+	exit 0
 }
 
 do_install() {
@@ -539,7 +550,7 @@ do_install() {
 	local oldpath="$PATH"
 	local oldldlib="$LD_LIBRARY_PATH"
 	export PATH="${wrksrc}/build_root/usr/bin:$PATH"
-	export LD_LIBRARY_PATH="${wrksrc}/build_root/usr/lib:$PATH"
+	export LD_LIBRARY_PATH="${wrksrc}/build_root/usr/lib:$LD_LIBRARY_PATH"
 
 	local tgt=${sourcepkg/cross-}
 	local sysroot="/usr/${tgt}"
@@ -600,16 +611,16 @@ do_install() {
 	fi
 
 	# minor-versioned symlinks
-	mv ${DESTDIR}/usr/lib/gcc/${tgt}/${gcc_patch} \
-		${DESTDIR}/usr/lib/gcc/${tgt}/${gcc_minor}
-	ln -sfr ${DESTDIR}/usr/lib/gcc/${tgt}/${gcc_minor} \
-		${DESTDIR}/usr/lib/gcc/${tgt}/${gcc_patch}
+	#mv ${DESTDIR}/usr/lib/gcc/${tgt}/${gcc_patch} \
+	#	${DESTDIR}/usr/lib/gcc/${tgt}/${gcc_minor}
+	#ln -sfr ${DESTDIR}/usr/lib/gcc/${tgt}/${gcc_minor} \
+	#	${DESTDIR}/usr/lib/gcc/${tgt}/${gcc_patch}
 
 	# ditto for c++ headers
-	mv ${DESTDIR}/${sysroot}/usr/include/c++/${gcc_patch} \
-		${DESTDIR}/${sysroot}/usr/include/c++/${gcc_minor}
-	ln -sfr ${DESTDIR}/${sysroot}/usr/include/c++/${gcc_minor} \
-		${DESTDIR}/${sysroot}/usr/include/c++/${gcc_patch}
+	#mv ${DESTDIR}/${sysroot}/usr/include/c++/${gcc_patch} \
+	#	${DESTDIR}/${sysroot}/usr/include/c++/${gcc_minor}
+	#ln -sfr ${DESTDIR}/${sysroot}/usr/include/c++/${gcc_minor} \
+	#	${DESTDIR}/${sysroot}/usr/include/c++/${gcc_patch}
 
 	# Symlinks for gnarl and gnat shared libraries
 	#local adalib=usr/lib/gcc/${tgt}/${gcc_patch}/adalib

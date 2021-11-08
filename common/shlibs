@@ -26,6 +26,8 @@ ld-linux-x86-64.so.2 glibc-2.32_1 x86_64
 ld-linux.so.2 glibc-2.32_1 i686
 ld-linux.so.3 glibc-2.32_1 armv5tel
 ld-linux-aarch64.so.1 glibc-2.32_1 aarch64
+ld-linux-arc.so.2 glibc-2.32_1 arc
+ld-linux-arc64.so.2 glibc-arc64_1 arc64
 ld64.so.2 glibc-2.32_1 ppc64
 ld.so.1 glibc-2.32_1 mips
 ld.so.1 glibc-2.32_1 ppc

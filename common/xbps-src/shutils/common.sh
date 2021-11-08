@@ -279,6 +279,8 @@ get_endian() {
     local arch="${1%-*}"
 
     case "$arch" in
+        arc)      echo "le";;
+        arc64)    echo "le";;
         aarch64)  echo "le";;
         armv5tel) echo "le";;
         armv6l)   echo "le";;
@@ -306,6 +308,8 @@ get_wordsize() {
     local arch="${1%-*}"
 
     case "$arch" in
+        arc)      echo "32";;
+        arc64)    echo "64";;
         aarch64)  echo "64";;
         armv5tel) echo "32";;
         armv6l)   echo "32";;

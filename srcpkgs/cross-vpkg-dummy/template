@@ -74,5 +74,6 @@ else
 	shlib_provides+=" libanl.so.1 libnsl.so.1 libutil.so.1"
 	shlib_provides+=" ld-linux.so.2 ld-linux.so.3 ld-linux-x86-64.so.2"
 	shlib_provides+=" ld-linux-armhf.so.3 ld-linux-aarch64.so.1"
+	shlib_provides+=" ld-linux-arc64.so.2 ld-linux-arc.so.2"
 	shlib_provides+=" ld64.so.2 ld.so.1"
 fi

@@ -112,6 +112,8 @@ case "$XBPS_TARGET_MACHINE" in
 	armv7l) _triplet="armv7l-linux-gnueabihf";;
 	armv6l-musl) _triplet="arm-linux-musleabihf";;
 	armv7l-musl) _triplet="armv7l-linux-musleabihf";;
+	arc) _triplet="arc-linux-gnu";;
+	arc64) _triplet="arc64-linux-gnu";;
 	aarch64) _triplet="aarch64-linux-gnu";;
 	aarch64-musl) _triplet="aarch64-linux-musl";;
 	ppc) _triplet="powerpc-linux-gnu";;

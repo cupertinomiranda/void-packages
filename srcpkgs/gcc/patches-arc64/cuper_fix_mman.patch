@@ -1,0 +1,13 @@
+diff -Naur libgcc/config.in libgcc_copy/config.in
+--- a/libgcc/config.in
++++ b/libgcc/config.in
+@@ -49,9 +49,6 @@
+ /* Define to 1 if you have the <sys/auxv.h> header file. */
+ #undef HAVE_SYS_AUXV_H
+ 
+-/* Define to 1 if you have the <sys/mman.h> header file. */
+-#undef HAVE_SYS_MMAN_H
+-
+ /* Define to 1 if you have the <sys/stat.h> header file. */
+ #undef HAVE_SYS_STAT_H
+ 

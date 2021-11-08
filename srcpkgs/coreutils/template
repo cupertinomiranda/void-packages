@@ -32,6 +32,11 @@ alternatives="
  hostname:hostname.1:/usr/share/man/man1/hostname-coreutils.1"
 
 pre_configure() {
+	if [ -f build-aux/config.sub ]; then
+		sed 's/arc | arceb/arc | arceb | arc64/' build-aux/config.sub > /tmp/config.sub
+		cp /tmp/config.sub ./build-aux/config.sub
+	fi
+
 	# Build natively all utils for the host, we need this to generate
 	# the manpages via help2man.
 	if [ "$CROSS_BUILD" ]; then

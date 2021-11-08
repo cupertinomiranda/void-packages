@@ -1,0 +1,51 @@
+# Template file for 'cross-arc64-linux-gnu'
+_binutils_version=arc64
+_gcc_version=arc64
+_glibc_version=arc64
+_linux_version=arc64
+pkgname=cross-arc64-linux-gnu
+version=0.34
+revision=1
+build_style=void-cross-arc64
+configure_args=""
+hostmakedepends="texinfo tar gcc-objc gcc-go flex perl python3"
+makedepends="isl15-devel libmpc-devel zlib-devel gmp-devel mpfr-devel"
+depends="${pkgname}-libc-${version}_${revision}"
+short_desc="Void cross toolchain for ${pkgname/cross-}"
+maintainer="Leah Neukirchen <leah@vuxu.org>"
+license="GPL-2.0-or-later, GPL-3.0-or-later, LGPL-2.1-or-later"
+homepage="https://www.voidlinux.org/"
+distfiles="
+ http://localhost/binutils-gdb-${_binutils_version}.tar.gz
+ http://localhost/gcc-${_gcc_version}.tar.gz
+ http://localhost/glibc-${_glibc_version}.tar.gz
+ http://localhost/linux-${_linux_version}.tar.gz"
+checksum="0a4804fe3ca998a3752e08b7dd78b01d24ff7f1696d709c6f99c5d1b74756373
+ b4b5fb8cb0940b9aa79e1cecbf327549f825833ff7c211bad1c033dffaabbe16
+ 4d0ab1f060be38eb5d08049b1b873c85c5681f61b115e29650b1fe8b07dd2152
+ 46ea17bd77f0ebca61535d09ba7006e3813464b36cfa9acc719781348b9c20a5"
+
+nocross=yes
+
+cross_gcc_skip_go=yes
+cross_glibc_cflags="-O2 -mcpu=hs6x"
+
+if [ "$XBPS_TARGET_MACHINE" = "arc64" ]; then
+	broken="Can't build crosstoolchain to itself"
+fi
+
+case "$XBPS_MACHINE" in
+	ppc64*) ;;
+	ppc*|mips*) broken="no gccgo support";;
+esac
+
+cross-arc64-linux-gnu-libc_package() {
+	short_desc+=" - glibc files"
+	nostrip=yes
+	noshlibprovides=yes
+	noverifyrdeps=yes
+
+	pkg_install() {
+		vmove usr/${sourcepkg/cross-}
+	}
+}
